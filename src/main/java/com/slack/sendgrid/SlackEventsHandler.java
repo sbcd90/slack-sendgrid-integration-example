@@ -13,7 +13,7 @@ import java.io.IOException;
 
 public class SlackEventsHandler extends HttpServlet {
 
-  private static final String SLACK_TOKEN = System.getenv("SLACK_TOKEN");
+  private String SLACK_TOKEN;
   private final SendGridMailSender mailSender;
 
   public SlackEventsHandler() {
@@ -31,13 +31,12 @@ public class SlackEventsHandler extends HttpServlet {
       ObjectMapper mapper = new ObjectMapper();
       SlackRegistration slackRegistry = mapper.readValue(body, SlackRegistration.class);
 
-      if (SLACK_TOKEN.equals(slackRegistry.getToken())) {
-        resp.setStatus(200);
-        resp.getWriter().write(slackRegistry.getChallenge());
-      } else {
-        resp.setStatus(400);
-        resp.getWriter().write("Bad Request");
-      }
+      /**
+       * save slack token
+       */
+      SLACK_TOKEN = slackRegistry.getToken();
+      resp.setStatus(200);
+      resp.getWriter().write(slackRegistry.getChallenge());
     } else {
       ObjectMapper mapper = new ObjectMapper();
       FileCommentEvent fileCommentEvent = mapper.readValue(body, FileCommentEvent.class);
